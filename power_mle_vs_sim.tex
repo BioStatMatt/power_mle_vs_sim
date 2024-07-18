@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx} % Required for inserting images
+ \renewcommand{\familydefault}{\sfdefault}
+ 
+\title{Power based on MLE theory}
+\author{Matt Shotwell}
+\date{June 2024}
+
+\begin{document}
+
+\maketitle
+\Large
+\noindent Theory of maximum likelihood estimation provides that:
+$$
+\sqrt{n}(\hat{\theta} - \theta) \stackrel{d}{\rightarrow} N(0, I^{-1})
+$$
+where $\theta$ is a parameter, $\hat{\theta}$ its estimate, and $I$ is the Fisher information. In practice, statistical inferences are often made by assuming a normal distribution for $\hat{\theta} \sim N(\theta, \frac{1}{n}I^{-1})$ and substituting estimates for its mean and variance-covariance. Specifically, the commonly assumed variance-covariance is 
+$$
+\hat{\Sigma}_n = -\hat{H}_n^{-1} = \frac{1}{n}\hat{I}^{-1}
+$$
+where $H_n$ is the Hessian of the log-likelihood function for a sample of size $n$, evaluated at the MLE $\hat{\theta}$. This variance-covariance is often used  for hypothesis testing (e.g., to test $H_0: \theta = 0$) and other inferences. Note that the estimated variance-covariance can be expressed as a simple function of $n$ and the estimated Fisher information, such that the variance-covariance for an alternative sample size $m$ can be estimated as follows:
+$$
+\hat{\Sigma}_m = \frac{1}{m}\hat{I}^{-1} = \frac{n}{m}\hat{\Sigma}_n.
+$$
+This relationship is useful for estimating statistical power for a range of sample sizes, especially if there are preliminary data that can be used to generate estimates of $\theta$ and $I$. For example, suppose $\theta$ is a scalar, $\hat{\sigma}_n$ is the estimated standard error of $\hat{\theta}$ for sample size $m$, and we perform a one-sided test with type-I error $\alpha$ by rejecting the null hypothesis $H_0: \theta = 0$ when
+$$
+\frac{\hat{\theta}}{\hat{\sigma}_m} > z_{1-\alpha},
+$$
+where $z_{1-\alpha}$ is the $1-\alpha$ quantile of the standard normal distribution (i.e., $\phi(z_{1-\alpha}) = 1-\alpha$, where $\phi$ is the normal cumulative distribution function). Under an alternative hypothesis $H_1: \theta = \theta_1 > 0$, assuming that $\hat{\theta}$ is normally distributed about mean $\theta_1$ with standard deviation $\hat{\sigma}_m$, the power is of this test is 
+\begin{eqnarray}
+P(\mathsf{reject}\ H_0) &=& P\left(\frac{\hat{\theta}}{\hat{\sigma}_m} > z_{1-\alpha}\right) \nonumber \\
+&=& 1-\phi\left(z_{1-\alpha} - \frac{\theta_1}{\hat{\sigma}_m}\right) \nonumber
+\end{eqnarray}
+
+\section{Notes}
+
+\begin{itemize}
+\item The Fisher information for normally distributed random variates does not depend on their mean.
+\[I(\mu, \sigma^2) = 
+\begin{bmatrix}
+\frac{1}{\sigma^2} & 0 \\
+0 & \frac{1}{2\sigma^4}
+\end{bmatrix}
+\]
+Here, the Fisher information for $\mu$ is $\frac{1}{\sigma^2}$, which depends only on $\sigma^2$.
+\item In some of the most commonly used software, we use the estimated vriance-covariance evaluated at the MLE to represent the variance-covariance of the MLE under the null ($\theta = 0$), i.e., for hypothesis and significance testing. The following R code illustrates this using the {\tt glm()} function:
+{\small\begin{verbatim}
+dat <- data.frame(
+  treatment = gl(3,3), 
+  covariate = gl(3,1,9), 
+  counts = c(18,21,25,20,10,20,14,13,12)) 
+fit <- glm(counts ~ covariate + treatment, family = poisson(), data=dat)
+summary(fit)
+
+# log-likelihood function
+logLikFun <- function(params, model) {
+  # design matrix
+  mmx <- model.matrix(model)
+  # linear predictor and GLM parameter
+  eta <- mmx %*% params
+  mu  <- model$family$linkinv(eta)
+  # log-likelihood
+  -0.5*fit$family$aic(y=model$y, mu=mu, wt=1)
+}
+
+## verify log-likelihood calculation
+logLik(fit)
+logLikFun(coef(fit), fit)
+
+## vcov() is based on negative inverse Hessian
+hess <- numDeriv::hessian(logLikFun, coef(fit), model=fit)
+sqrt(diag(-solve(hess)))
+sqrt(diag(vcov(fit)))
+
+## vcov() is used to calculate p-values, i.e., is assumed to be
+## the variance-covariance under the null hypothesis
+coef(fit) / sqrt(diag(vcov(fit)))  ## z-value
+2*(1-pnorm(abs(coef(fit) / sqrt(diag(vcov(fit)))))) ## p-value
+summary(fit)
+\end{verbatim}}
+
+\end{itemize}
+
+
+
+
+
+\end{document}
