@@ -11,28 +11,58 @@
 
 \maketitle
 \Large
+
+
+\section{Introduction}
 \noindent Theory of maximum likelihood estimation provides that:
 $$
 \sqrt{n}(\hat{\theta} - \theta) \stackrel{d}{\rightarrow} N(0, I^{-1})
 $$
-where $\theta$ is a parameter, $\hat{\theta}$ its estimate, and $I$ is the Fisher information. In practice, statistical inferences are often made by assuming a normal distribution for $\hat{\theta} \sim N(\theta, \frac{1}{n}I^{-1})$ and substituting estimates for its mean and variance-covariance. Specifically, the commonly assumed variance-covariance is 
+where $\theta$ is a parameter, $\hat{\theta}$ its estimate, and $I$ is the Fisher information evaluated at $\theta$. In practice, statistical inferences are often made by assuming a normal distribution for $\hat{\theta} \sim N(\theta, \frac{1}{n}I^{-1})$, substituting estimates for its mean and variance-covariance. Specifically, a common estimate for the variance-covariance is 
 $$
 \hat{\Sigma}_n = -\hat{H}_n^{-1} = \frac{1}{n}\hat{I}^{-1}
 $$
-where $H_n$ is the Hessian of the log-likelihood function for a sample of size $n$, evaluated at the MLE $\hat{\theta}$. This variance-covariance is often used  for hypothesis testing (e.g., to test $H_0: \theta = 0$) and other inferences. Note that the estimated variance-covariance can be expressed as a simple function of $n$ and the estimated Fisher information, such that the variance-covariance for an alternative sample size $m$ can be estimated as follows:
+where $\hat{H}_n$ is the Hessian of the log-likelihood function for a sample of size $n$, evaluated at the MLE $\hat{\theta}$. This variance-covariance is commonly used for hypothesis testing (e.g., to test $H_0: \theta = 0$) and other inferences. $\hat{H}_n$ also provides a means to estimate the Fisher information, denoted $\hat{I}$ in the expression above. The estimated variance-covariance $\hat{\Sigma}_n$ can be expressed as a simple function of $n$ and the estimated Fisher information, such that the variance-covariance for an alternative sample size $m$ can be estimated as follows:
 $$
 \hat{\Sigma}_m = \frac{1}{m}\hat{I}^{-1} = \frac{n}{m}\hat{\Sigma}_n.
 $$
-This relationship is useful for estimating statistical power for a range of sample sizes, especially if there are preliminary data that can be used to generate estimates of $\theta$ and $I$. For example, suppose $\theta$ is a scalar, $\hat{\sigma}_n$ is the estimated standard error of $\hat{\theta}$ for sample size $m$, and we perform a one-sided test with type-I error $\alpha$ by rejecting the null hypothesis $H_0: \theta = 0$ when
+This relationship is useful for estimating statistical power for a range of sample sizes, especially if there are preliminary data that can be used to generate estimates of $\theta$ and $I$.
+
+\section{Example: One-sided test}
+\noindent Let $\theta$ be a scalar and $\hat{\sigma}_m$ denote the estimated standard error of $\hat{\theta}$ for sample size $m$, based on the estimated Fisher information
 $$
-\frac{\hat{\theta}}{\hat{\sigma}_m} > z_{1-\alpha},
+\hat{\sigma}_m = \sqrt{\hat{\Sigma}_m} = \sqrt{\frac{1}{m}\hat{I}^{-1}}
 $$
-where $z_{1-\alpha}$ is the $1-\alpha$ quantile of the standard normal distribution (i.e., $\phi(z_{1-\alpha}) = 1-\alpha$, where $\phi$ is the normal cumulative distribution function). Under an alternative hypothesis $H_1: \theta = \theta_1 > 0$, assuming that $\hat{\theta}$ is normally distributed about mean $\theta_1$ with standard deviation $\hat{\sigma}_m$, the power is of this test is 
+We can then perform a one-sided test of the null hypothesis $H_0: \theta \leq 0$, with type-I error $\alpha$, by rejecting $H_0$ when $\hat{\theta}$ exceeds a critical value
+$$
+\hat{\theta} > z_{1-\alpha}\hat{\sigma}_m,
+$$
+where $z_{1-\alpha}$ is the $1-\alpha$ quantile of the standard normal distribution (i.e., $\phi(z_{1-\alpha}) = 1-\alpha$, and $\phi$ is the normal cumulative distribution function). To approximate statistical power, we assume that $\hat{\theta}$ is normally distributed about mean $\theta$ with standard deviation $\hat{\sigma}_m$, such that $\hat{\theta}/\hat{\sigma}_m$ is normally distributed with mean $\theta/\hat{\sigma}_m$ and unit variance. Under the alternative hypothesis $H_1: \theta = \theta^1$, the power is of this test is 
 \begin{eqnarray}
-P(\mathsf{reject}\ H_0) &=& P\left(\frac{\hat{\theta}}{\hat{\sigma}_m} > z_{1-\alpha}\right) \nonumber \\
-&=& 1-\phi\left(z_{1-\alpha} - \frac{\theta_1}{\hat{\sigma}_m}\right) \nonumber
+P(\mathsf{reject}\ H_0 | \theta = \theta^1) &=& P\left(\hat{\theta} > z_{1-\alpha}\hat{\sigma}_m\right) \nonumber \\
+&=& 1-\phi\left(z_{1-\alpha} - \frac{\theta^1}{\hat{\sigma}_m}\right) \nonumber
 \end{eqnarray}
 
+\section{Example: Multiple degree-of-freedom test}
+
+Consider a multiple degree-of-freedom test of the null hypothesis $H_0: \theta_0 = 0,\ \theta_1 = 0$, where we let $\theta$ denote the vector $\theta = [\theta_0, \theta_1]$. Under the null hypothesis $H_0$, and assuming $\hat{\theta}$ is normlly distributed with variance-covariance $\hat{\Sigma}_m$,  then the quatradic form
+$$
+\hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta}
+$$
+ has a chi-square distribution with 2 degrees-of-freedom. Thus, we can test $H_0$ with 5\% type-I error rate by rejecting $H_0$ when 
+$$
+\hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta} > \chi^2_{1-\alpha}
+$$
+where $\chi^2_{2,1-\alpha}$ is the $1-\alpha$ quantile of the chi-squarel distribution with 2 degrees-of-freedom. Under the alternative hypothesis $H_1: \theta_0 = \theta_0^1,\ \theta_1 = \theta_1^1$, the quadratic form has a non-central chi-square distribution with 2 degrees-of-freedom and non-centrality parameter
+$$
+\lambda^1_m = \theta^1 \hat{\Sigma}_m^{-1/2}
+$$
+where $\hat{\Sigma}_m^{-1/2}$ is the inverse Cholesky factorization of $\hat{\Sigma}_m$. Thus, statistical power under $H_1$ at sample size $m$ is computed as follows
+\begin{eqnarray}
+P(\mathsf{reject}\ H_0 | \theta = \theta^1) &=& P\left(\hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta} > \chi^2_{1-\alpha}\right) \nonumber \\
+&=& 1-\rho_{2,\lambda^1_m}\left(\chi^2_{1-\alpha}\right) \nonumber
+\end{eqnarray}
+where $\rho_{2,\lambda^1_m}$ is the non-central chi-square distribution function with 2 degrees-of-freedom and non-centrality parameter $\lambda^1_m$.
 \section{Notes}
 
 \begin{itemize}
