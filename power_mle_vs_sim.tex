@@ -49,7 +49,7 @@ Consider a multiple degree-of-freedom test of the null hypothesis $H_0: \theta_0
 $$
 \hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta}
 $$
- has a chi-square distribution with 2 degrees-of-freedom. Thus, we can test $H_0$ with 5\% type-I error rate by rejecting $H_0$ when 
+ has a chi-square distribution with 2 degrees-of-freedom. Thus, we can test $H_0$ with type-I error rate $\alpha$ by rejecting $H_0$ when 
 $$
 \hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta} > \chi^2_{1-\alpha}
 $$
@@ -60,7 +60,7 @@ where $\chi^2_{2,1-\alpha}$ is the $1-\alpha$ quantile of the chi-squarel distri
 \end{eqnarray}
 where $\hat{\Sigma}_m^{-1/2}$ is the Cholesky factorization of $\hat{\Sigma}_m^{-1}$. To derive this expression, under $H_1$, note that $\hat{\Sigma}_m^{-1/2}\hat{\theta}$ has an approximate normal distribution with mean $\hat{\Sigma}_m^{-1/2}\tilde{\theta}$ and identity variance-covariance matrix. Thus, statistical power under $H_1$ at sample size $m$ is computed as follows
 \begin{eqnarray}
-P(\mathsf{reject}\ H_0 | \theta = \theta^1) &=& P\left(\hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta} > \chi^2_{1-\alpha}\right) \nonumber \\
+P(\mathsf{reject}\ H_0 | \theta = \tilde{\theta}) &=& P\left(\hat{\theta}^T\hat{\Sigma}_m^{-1}\hat{\theta} > \chi^2_{1-\alpha}\right) \nonumber \\
 &=& 1-\rho_{2,\tilde{\lambda}_m}\left(\chi^2_{1-\alpha}\right) \nonumber
 \end{eqnarray}
 where $\rho_{2,\tilde{\lambda}_m}$ is the non-central chi-square distribution function with 2 degrees-of-freedom and non-centrality parameter $\tilde{\lambda}_m$.
